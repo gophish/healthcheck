@@ -1,0 +1,7 @@
+*.db
+
+# The coredns binary
+coredns
+
+# The healthcheck binary
+healthcheck
