@@ -65,8 +65,13 @@ func RateLimit(next http.Handler) http.Handler {
 }
 
 func PostMessage(w http.ResponseWriter, r *http.Request) {
-	m := db.Message{}
-	err := json.NewDecoder(r.Body).Decode(&m)
+	m := &db.Message{}
+	err := json.NewDecoder(r.Body).Decode(m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = m.Validate()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -78,10 +83,10 @@ func PostMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	m.DomainHash = hash
-	db.PostMessage(&m)
+	db.PostMessage(m)
 
 	// Send the message to the mailer
-	err = mail.SendEmail(&m)
+	err = mail.SendEmail(m)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

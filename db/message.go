@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,9 +12,23 @@ import (
 	"github.com/gophish/healthcheck/util"
 )
 
+// DefaultSender is the sender part of the email address used to send messages
 const DefaultSender = "no-reply"
+
+// DefaultSubject is the default subject used when sending messages
 const DefaultSubject = "Gophish Healthcheck - Test Email"
+
+// DefaultSMTPPort is the default SMTP port used when making outbound SMTP
+// connections
 const DefaultSMTPPort = 25
+
+// ErrMissingMailServer occurs when a message is received without specifying
+// a valid mail server.
+var ErrMissingMailServer = errors.New("no mail server specified")
+
+// ErrMissingRecipient occurs when a message is received without specifying
+// a valid recipient
+var ErrMissingRecipient = errors.New("no recipient specified")
 
 // Dialer is a wrapper around a standard gomail.Dialer in order
 // to implement the mailer.Dialer interface. This allows us to better
@@ -49,6 +64,16 @@ type Message struct {
 	ErrorChan    chan (error) `gorm:"-" json:"-"`
 
 	MessageConfiguration `gorm:"embedded" json:"configuration"`
+}
+
+func (m *Message) Validate() error {
+	if m.Recipient == "" {
+		return ErrMissingRecipient
+	}
+	if m.MailServer == "" {
+		return ErrMissingMailServer
+	}
+	return nil
 }
 
 func (m *Message) generateFromAddress() string {
