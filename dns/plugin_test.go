@@ -57,13 +57,7 @@ var acceptedTypes = map[uint16]bool{
 
 func TestWrongRequestType(t *testing.T) {
 	w := &MockDNSResponseWriter{}
-	m := &dns.Msg{
-		MsgHdr: dns.MsgHdr{
-			RecursionDesired: true,
-			Opcode:           dns.OpcodeQuery,
-		},
-		Question: make([]dns.Question, 1),
-	}
+	m := new(dns.Msg)
 	ctx := context.Background()
 	hc := HealthCheckPlugin{}
 	for qt := range dns.TypeToString {
@@ -71,11 +65,7 @@ func TestWrongRequestType(t *testing.T) {
 		if _, ok := acceptedTypes[qt]; ok {
 			continue
 		}
-		m.Question[0] = dns.Question{
-			Name:   dns.Fqdn("example.com"),
-			Qclass: dns.ClassINET,
-			Qtype:  qt,
-		}
+		m.SetQuestion("example.com.", qt)
 		response, _ := hc.ServeDNS(ctx, w, m)
 		if response != dns.RcodeServerFailure {
 			t.Fatalf("Unexpected response value: %d", response)
