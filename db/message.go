@@ -3,6 +3,8 @@ package db
 import (
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -145,10 +147,15 @@ func (m *Message) Generate(msg *gomail.Message) error {
 
 // GetDialer creates a mailer.Dialer from the message configuration.
 func (m *Message) GetDialer() (mailer.Dialer, error) {
+	port := DefaultSMTPPort
+	hp := strings.Split(m.MailServer, ":")
+	if len(hp) == 2 {
+		port, _ = strconv.Atoi(hp[1])
+	}
 	d := &Dialer{
 		&gomail.Dialer{
 			Host: m.MailServer,
-			Port: DefaultSMTPPort,
+			Port: port,
 		},
 	}
 	return d, nil

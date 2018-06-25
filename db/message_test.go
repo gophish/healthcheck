@@ -1,6 +1,7 @@
 package db
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/jinzhu/gorm"
@@ -92,5 +93,28 @@ func TestMessageIDLength(t *testing.T) {
 	expectedLen := MessageIDLength * 2
 	if len(m.MessageID) != expectedLen {
 		t.Fatalf("Unexpected message ID length. Expected %d Got %d", expectedLen, len(m.MessageID))
+	}
+}
+
+func TestDialerCustomPort(t *testing.T) {
+	m := createMessage()
+	d, err := m.GetDialer()
+	if err != nil {
+		t.Fatalf("Unexpected error when creating message: %v", err)
+	}
+	got := d.(*Dialer).Dialer.Port
+	if got != DefaultSMTPPort {
+		t.Fatalf("Unexpected port found in dialer. Expected %d Got %d", DefaultSMTPPort, got)
+	}
+
+	expectedPort := 1025
+	m.MailServer = m.MailServer + ":" + strconv.Itoa(expectedPort)
+	d, err = m.GetDialer()
+	if err != nil {
+		t.Fatalf("Unexpected error when creating message: %v", err)
+	}
+	got = d.(*Dialer).Dialer.Port
+	if got != expectedPort {
+		t.Fatalf("Unexpected port found in dialer. Expected %d Got %d", expectedPort, got)
 	}
 }
