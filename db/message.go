@@ -52,6 +52,7 @@ func (d *Dialer) Dial() (mailer.Sender, error) {
 	return d.Dialer.Dial()
 }
 
+// MessageConfiguration is the configuration for the outbound message.
 type MessageConfiguration struct {
 	SPF   string `json:"spf"`
 	DKIM  string `json:"dkim"`
@@ -59,6 +60,7 @@ type MessageConfiguration struct {
 	MX    bool   `json:"mx"`
 }
 
+// Message is the base struct for handling per-message information.
 type Message struct {
 	ID           uint         `gorm:"primary_key" json:"id"`
 	CreatedAt    time.Time    `json:"created_at"`
@@ -75,6 +77,8 @@ type Message struct {
 	MessageConfiguration `gorm:"embedded" json:"configuration"`
 }
 
+// Validate ensures the message is correctly formatted with all the necessary
+// fields.
 func (m *Message) Validate() error {
 	if m.Recipient == "" {
 		return ErrMissingRecipient
@@ -89,6 +93,8 @@ func (m *Message) generateFromAddress() string {
 	return fmt.Sprintf("\"%s\" <%s@%s.%s>", DefaultSenderName, DefaultSender, m.MessageID, config.Config.EmailHostname)
 }
 
+// Backoff simply errors out the message, since we don't handle exponential
+// backoffs yet.
 func (m *Message) Backoff(reason error) error {
 	m.Successful = false
 	m.ErrorMessage = reason.Error()
@@ -96,6 +102,7 @@ func (m *Message) Backoff(reason error) error {
 	return db.Save(m).Error
 }
 
+// Error errors out the message.
 func (m *Message) Error(err error) error {
 	m.Successful = false
 	m.ErrorMessage = err.Error()
@@ -103,12 +110,14 @@ func (m *Message) Error(err error) error {
 	return db.Save(m).Error
 }
 
+// Success saves the message as having been sent successfully.
 func (m *Message) Success() error {
 	m.Successful = true
 	m.ErrorChan <- nil
 	return db.Save(m).Error
 }
 
+// Generate creates a gomail.Message instance from the provided message.
 func (m *Message) Generate(msg *gomail.Message) error {
 	msg.SetHeader("From", m.generateFromAddress())
 	msg.SetHeader("To", m.Recipient)
@@ -134,6 +143,7 @@ func (m *Message) Generate(msg *gomail.Message) error {
 	return nil
 }
 
+// GetDialer creates a mailer.Dialer from the message configuration.
 func (m *Message) GetDialer() (mailer.Dialer, error) {
 	d := &Dialer{
 		&gomail.Dialer{
