@@ -55,6 +55,9 @@ func TestGetMessage(t *testing.T) {
 	setupConfig(t)
 	m := createMessage()
 	err := PostMessage(m)
+	if err != nil {
+		t.Fatalf("Unexpected error when creating message: %s", err.Error())
+	}
 
 	got, err := GetMessage(m.MessageID)
 	if err != nil {
@@ -67,8 +70,27 @@ func TestGetMessage(t *testing.T) {
 
 func TestInvalidGetMessage(t *testing.T) {
 	setupConfig(t)
-	_, err := GetMessage("InvalidID")
+	m := createMessage()
+	err := PostMessage(m)
+	if err != nil {
+		t.Fatalf("Unexpected error when creating message: %s", err.Error())
+	}
+	_, err = GetMessage("InvalidID")
 	if err != gorm.ErrRecordNotFound {
-		t.Fatalf("Unexpected error received when fetching invalid message. Expected %s Got %s", gorm.ErrRecordNotFound.Error(), err.Error())
+		t.Fatalf("Unexpected error received when fetching invalid message. Expected %v Got %v", gorm.ErrRecordNotFound, err)
+	}
+}
+
+func TestMessageIDLength(t *testing.T) {
+	setupConfig(t)
+	m := createMessage()
+	err := PostMessage(m)
+	if err != nil {
+		t.Fatalf("Unexpected error when creating message: %s", err.Error())
+	}
+	// Multiply the ID length by 2 since we're hex encoding it.
+	expectedLen := MessageIDLength * 2
+	if len(m.MessageID) != expectedLen {
+		t.Fatalf("Unexpected message ID length. Expected %d Got %d", expectedLen, len(m.MessageID))
 	}
 }

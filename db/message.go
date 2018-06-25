@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jinzhu/gorm"
+
 	"github.com/gophish/gomail"
 	"github.com/gophish/gophish/mailer"
 	"github.com/gophish/healthcheck/config"
@@ -25,6 +27,9 @@ const DefaultSubject = "Gophish Healthcheck - Test Email"
 // DefaultSMTPPort is the default SMTP port used when making outbound SMTP
 // connections
 const DefaultSMTPPort = 25
+
+// MessageIDLength is the number of bytes to use when generated message IDs
+const MessageIDLength = 16
 
 // ErrMissingMailServer occurs when a message is received without specifying
 // a valid mail server.
@@ -141,15 +146,22 @@ func (m *Message) GetDialer() (mailer.Dialer, error) {
 
 // GetMessage retrieves a message by ID from the database
 func GetMessage(id string) (*Message, error) {
-	message := &Message{MessageID: id}
-	err := db.First(message).Error
+	message := &Message{}
+	err := db.Where("message_id=?", id).First(message).Error
 	return message, err
 }
 
 // PostMessage saves a message instance into the database
 func PostMessage(m *Message) error {
-	// Generate a random ID for the message
-	m.MessageID = util.GenerateSecureID()
+	for {
+		// Generate a random ID for the message
+		m.MessageID = util.GenerateSecureID(MessageIDLength)
+		// Verify the ID doesn't already exist
+		_, err := GetMessage(m.MessageID)
+		if err == gorm.ErrRecordNotFound {
+			break
+		}
+	}
 	err := db.Save(m).Error
 	return err
 }

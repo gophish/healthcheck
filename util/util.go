@@ -12,9 +12,9 @@ import (
 
 // GenerateSecureID creates a secure ID to use
 // as a CSRF key or a Message ID
-func GenerateSecureID() string {
+func GenerateSecureID(length int) string {
 	// Inspired from gorilla/securecookie
-	k := make([]byte, 32)
+	k := make([]byte, length)
 	io.ReadFull(rand.Reader, k)
 	return fmt.Sprintf("%x", k)
 }
