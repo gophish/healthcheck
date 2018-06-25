@@ -8,7 +8,6 @@ import (
 )
 
 type Conf struct {
-	RedisAddr      string `json:"redis_addr,omitempty"`
 	DBName         string `json:"db_name,omitempty"`
 	DBPath         string `json:"db_path,omitempty"`
 	EmailHostname  string `json:"email_hostname,omitempty"`

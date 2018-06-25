@@ -7,7 +7,7 @@ import (
 
 	"github.com/coredns/coredns/plugin"
 	"github.com/coredns/coredns/request"
-	"github.com/go-redis/redis"
+	"github.com/gophish/healthcheck/db"
 	"github.com/miekg/dns"
 )
 
@@ -18,8 +18,7 @@ const HealthCheckPluginName = "healthcheck"
 // HealthCheckPlugin is a CoreDNS plugin that emulate various email
 // authentication states.
 type HealthCheckPlugin struct {
-	Redis *redis.Client
-	Next  plugin.Handler
+	Next plugin.Handler
 }
 
 // Name implements the Handler interface.
@@ -44,7 +43,11 @@ func (hc HealthCheckPlugin) ServeDNS(ctx context.Context, w dns.ResponseWriter, 
 
 	messageID := strings.Split(state.QName(), ".")[0]
 	// Lookup the message
-	fmt.Println(messageID)
+	message, err := db.GetMessage(messageID)
+	if err != nil {
+		return plugin.NextOrFailure(hc.Name(), hc.Next, ctx, w, r)
+	}
+	fmt.Printf("%#v", message)
 
 	switch state.QType() {
 	case dns.TypeTXT:
