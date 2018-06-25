@@ -15,6 +15,10 @@ import (
 // DefaultSender is the sender part of the email address used to send messages
 const DefaultSender = "no-reply"
 
+// DefaultSenderName is the name part of the email address used to send
+// messages
+const DefaultSenderName = "Gophish Healthcheck"
+
 // DefaultSubject is the default subject used when sending messages
 const DefaultSubject = "Gophish Healthcheck - Test Email"
 
@@ -77,7 +81,7 @@ func (m *Message) Validate() error {
 }
 
 func (m *Message) generateFromAddress() string {
-	return fmt.Sprintf("%s@%s.%s", DefaultSender, m.MessageID, config.Config.EmailHostname)
+	return fmt.Sprintf("\"%s\" <%s@%s.%s>", DefaultSenderName, DefaultSender, m.MessageID, config.Config.EmailHostname)
 }
 
 func (m *Message) Backoff(reason error) error {
@@ -137,7 +141,7 @@ func (m *Message) GetDialer() (mailer.Dialer, error) {
 
 // GetMessage retrieves a message by ID from the database
 func GetMessage(id string) (*Message, error) {
-	message := &Message{}
+	message := &Message{MessageID: id}
 	err := db.First(message).Error
 	return message, err
 }
