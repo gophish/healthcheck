@@ -1,5 +1,7 @@
 # Gophish Healthcheck
 
+[![Build Status](https://travis-ci.org/gophish/healthcheck.svg?branch=master)](https://travis-ci.org/gophish/healthcheck) [![GoDoc](https://godoc.org/github.com/gophish/healthcheck?status.svg)](https://godoc.org/github.com/gophish/healthcheck)
+
 A service to test mail servers for best practices.
 
 ### Current Status
