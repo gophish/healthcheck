@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
+// NewAPIRouter returns a new router that implements the healthcheck API
 func NewAPIRouter() http.Handler {
 	r := chi.NewRouter()
 
@@ -42,6 +43,7 @@ func NewAPIRouter() http.Handler {
 	return r
 }
 
+// MessageCtx enriches the request context with the requested message
 func MessageCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get the message from the database, updating the request context
@@ -64,6 +66,7 @@ func RateLimit(next http.Handler) http.Handler {
 	})
 }
 
+// PostMessage creates and sends a new message with the provided configuration.
 func PostMessage(w http.ResponseWriter, r *http.Request) {
 	m := &db.Message{}
 	err := json.NewDecoder(r.Body).Decode(m)
@@ -86,14 +89,14 @@ func PostMessage(w http.ResponseWriter, r *http.Request) {
 	db.PostMessage(m)
 
 	// Send the message to the mailer
-	err = mail.SendEmail(m)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	mail.SendEmail(m)
 	JSONResponse(w, m, http.StatusOK)
 }
 
+// UpdateMessage updates the status for a particular message to indicate
+// if it was received. It then returns a template with information on how to
+// update the mail server settings to block future emails with the same
+// configuration.
 func UpdateMessage(w http.ResponseWriter, r *http.Request) {
 	status := chi.URLParam(r, "status")
 	w.Write([]byte(status))
