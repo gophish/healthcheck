@@ -26,7 +26,7 @@ func LoadConfig(filepath string) error {
 	}
 	err = json.Unmarshal(configFile, &Config)
 	if err != nil {
-		log.Error("error unmarshaling config: %s", err.Error())
+		log.Errorf("error unmarshaling config: %s", err.Error())
 		return err
 	}
 

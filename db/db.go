@@ -28,7 +28,6 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 
 func Setup() error {
 	// Setup the goose configuration
-	log.Infof("%#v", config.Config)
 	migrateConf := &goose.DBConf{
 		MigrationsDir: config.Config.MigrationsPath,
 		Env:           "production",
