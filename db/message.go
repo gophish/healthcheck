@@ -16,22 +16,37 @@ import (
 	"github.com/gophish/healthcheck/util"
 )
 
-// DefaultSender is the sender part of the email address used to send messages
-const DefaultSender = "no-reply"
+const (
+	// DefaultSender is the sender part of the email address used to send messages
+	DefaultSender = "no-reply"
 
-// DefaultSenderName is the name part of the email address used to send
-// messages
-const DefaultSenderName = "Gophish Healthcheck"
+	// DefaultSenderName is the name part of the email address used to send
+	// messages
+	DefaultSenderName = "Gophish Healthcheck"
 
-// DefaultSubject is the default subject used when sending messages
-const DefaultSubject = "Gophish Healthcheck - Test Email"
+	// DefaultSubject is the default subject used when sending messages
+	DefaultSubject = "Gophish Healthcheck - Test Email"
 
-// DefaultSMTPPort is the default SMTP port used when making outbound SMTP
-// connections
-const DefaultSMTPPort = 25
+	// DefaultSMTPPort is the default SMTP port used when making outbound SMTP
+	// connections
+	DefaultSMTPPort = 25
 
-// MessageIDLength is the number of bytes to use when generated message IDs
-const MessageIDLength = 16
+	// MessageIDLength is the number of bytes to use when generated message IDs
+	MessageIDLength = 16
+
+	// HardFail is the constant value used to indicate the specific configuration
+	// should fail
+	HardFail = "hardfail"
+	// None is the constant value used to indicate the specific configuration
+	// should not be present (e.g. no DKIM signing at all)
+	None = "none"
+	// SoftFail is the constant value that indicates the certain configuration
+	// option (if supported) should softfail (e.g. spf softfail).
+	SoftFail = "softfail"
+	// Pass is the constant value used to indicate the specific configuration
+	// value should be valid
+	Pass = "pass"
+)
 
 // ErrMissingMailServer occurs when a message is received without specifying
 // a valid mail server.
@@ -154,7 +169,7 @@ func (m *Message) GetDialer() (mailer.Dialer, error) {
 	}
 	d := &Dialer{
 		&gomail.Dialer{
-			Host: m.MailServer,
+			Host: hp[0],
 			Port: port,
 		},
 	}
