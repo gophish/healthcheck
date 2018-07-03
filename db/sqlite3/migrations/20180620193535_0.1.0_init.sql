@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS "messages" (
     "mail_server"   varchar(255),
     "error_message" varchar(1024),
     "successful" boolean,
-    "mx" boolean);
+    "mx" varchar(255));
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back

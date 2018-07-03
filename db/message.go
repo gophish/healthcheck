@@ -46,6 +46,14 @@ const (
 	// Pass is the constant value used to indicate the specific configuration
 	// value should be valid
 	Pass = "pass"
+	// Reject indicates that the DMARC response should have the policy set to
+	// reject
+	Reject = "reject"
+	// Quarantine indicates that the DMARC response should have the policy set
+	// to quarantine
+	Quarantine = "quarantine"
+	// Neutral indicates that the SPF response should have a neutral enforcement
+	Neutral = "neutral"
 )
 
 // ErrMissingMailServer occurs when a message is received without specifying
@@ -74,7 +82,7 @@ type MessageConfiguration struct {
 	SPF   string `json:"spf"`
 	DKIM  string `json:"dkim"`
 	DMARC string `json:"dmarc"`
-	MX    bool   `json:"mx"`
+	MX    string `json:"mx"`
 }
 
 // Message is the base struct for handling per-message information.

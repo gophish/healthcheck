@@ -7,6 +7,13 @@ import (
 	log "github.com/gophish/gophish/logger"
 )
 
+// DMARCPrefix is the DNS prefix used by mail servers to fetch DMARC records.
+const DMARCPrefix = "_dmarc"
+
+// DKIMPrefix is the DNS prefix used by mail servers to fetch DKIM records.
+// Note: this is specified by Healthcheck when sending emails.
+const DKIMPrefix = "_dkim"
+
 type Conf struct {
 	DBName         string `json:"db_name,omitempty"`
 	DBPath         string `json:"db_path,omitempty"`
